@@ -44,7 +44,8 @@ jobs:
       # Copy built files to the public repository, excluding the .git directory.
       - name: Copy Built Files to Public Repository
         run: |
-          rsync -av --delete --exclude='.git' dist/ public-release/
+          rsync -av --delete --exclude='.git' --exclude='VERSION' dist/ public-release/
+
           
       # Commit and push the changes to the public repository.
       - name: Commit and Push Changes
