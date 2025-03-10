@@ -34,7 +34,13 @@ jobs:
           token: ${{ secrets.PUBLIC_REPO_TOKEN }}
           path: public-release
 
-      # Step 4: Copy the contents of the dist folder to the public repository.
+      # Step 4: Set the correct remote URL explicitly.
+      - name: Set Remote URL for Public Repository
+        working-directory: public-release
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.PUBLIC_REPO_TOKEN }}@github.com/Deepak-png981/AI-Code-Reviewer-Release.git
+
+      # Step 5: Copy the contents of the dist folder to the public repository.
       - name: Copy Built Files to Public Repository
         run: |
           # Ensure the public-release folder exists
@@ -45,7 +51,7 @@ jobs:
           # Copy over the built files (adjust paths if necessary)
           rsync -av --delete dist/ public-release/
           
-      # Step 5: Commit and push the changes to the public repository.
+      # Step 6: Commit and push the changes to the public repository.
       - name: Commit and Push Changes
         working-directory: public-release
         run: |
