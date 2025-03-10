@@ -1,4 +1,4 @@
-name: Release to Marketplace
+name: Release Assets to Public Repository
 
 on:
   push:
@@ -13,11 +13,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the private repository code.
+      # Checkout private repository code.
       - name: Checkout Private Repository
         uses: actions/checkout@v3
 
-      # Step 2: Set up Node.js and install dependencies.
+      # Set up Node.js and build the project.
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -29,22 +29,24 @@ jobs:
           npm run build
           npm run package
 
-      # Step 3: Manually clone the public repository.
+      # Manually clone the public repository.
       - name: Clone Public Repository
         run: |
           git clone https://x-access-token:${{ secrets.PUBLIC_REPO_TOKEN }}@github.com/Deepak-png981/AI-Code-Reviewer-Release.git public-release
 
-      # Step 4: Copy the contents of the dist folder to the public repository, preserving .git.
+      # Extract version from package.json and update a VERSION file in the public repo.
+      - name: Update Version in Public Repository
+        run: |
+          version=$(jq -r '.version' package.json)
+          echo "Using version: $version"
+          echo "$version" > public-release/VERSION
+
+      # Copy built files to the public repository, excluding the .git directory.
       - name: Copy Built Files to Public Repository
         run: |
-          if [ ! -d public-release ]; then
-            echo "Public repository folder not found"
-            exit 1
-          fi
-          # Exclude .git so that the repository’s metadata stays intact.
           rsync -av --delete --exclude='.git' dist/ public-release/
           
-      # Step 5: Commit and push the changes to the public repository.
+      # Commit and push the changes to the public repository.
       - name: Commit and Push Changes
         working-directory: public-release
         run: |
@@ -52,7 +54,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
           if [ -n "$(git status --porcelain)" ]; then
-            git commit -m "Release update: $(date)"
+            git commit -m "Release update:- Version $(cat VERSION)"
             git push origin HEAD:main
           else
             echo "No changes to commit"
