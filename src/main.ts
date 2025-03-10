@@ -231,7 +231,10 @@ async function main() {
       minimatch(file.to ?? "", pattern)
     );
   });
-
+  const sum = (a : string , b : string ) : string => {
+    return a + b;
+  }
+  console.log(sum("hello " , "Deepak Joshi");
   const comments = await analyzeCode(filteredDiff, prDetails);
   if (comments.length > 0) {
     await createReviewComment(
