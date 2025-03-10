@@ -39,7 +39,12 @@ jobs:
         run: |
           mkdir -p public-release/dist
 
-      # 5. Update the version file in the public repo's dist folder.
+      # 5. Copy only the built files into the public repo's dist/ folder.
+      - name: Copy Built Files to Public Repository
+        run: |
+          rsync -av --delete dist/ public-release/dist/
+
+      # 6. Update the VERSION file in the public repo's dist folder after rsync.
       - name: Update Version in Public Repository
         run: |
           version=$(node -p "require('./package.json').version")
@@ -47,11 +52,6 @@ jobs:
           echo "$version" > public-release/dist/VERSION
           echo "VERSION file content:"
           cat public-release/dist/VERSION
-
-      # 6. Copy only the built files into the public repo's dist/ folder.
-      - name: Copy Built Files to Public Repository
-        run: |
-          rsync -av --delete dist/ public-release/dist/
 
       # 7. Commit and push the changes to the public repository.
       - name: Commit and Push Changes
