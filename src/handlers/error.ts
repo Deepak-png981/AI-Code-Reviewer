@@ -33,7 +33,7 @@ export class ErrorHandler {
     }
 
     if (error && error.stack) {
-      core.debug(`Stack trace: ${error.stack}`);
+      core.info(`Stack trace: ${error.stack}`);
     }
   }
 

@@ -23,8 +23,8 @@ export class DiffUtils {
 - Write the comment in GitHub Markdown format.
 - Use the given description only for the overall context and only comment the code.
 - IMPORTANT: NEVER suggest adding comments to the code.
-- IMPORTANT: Donot comment on the formatting of the code.
-- IMPORTANT: Classify the comments in three groupts nit , minor and major. The "nit" comments are comments that are not important and can be ignored. The "minor" comments are comments that are important and should be addressed. The "major" comments are comments that are critical and must be addressed. Each of your comment should start with nit: , minor: or major: <comment>
+- IMPORTANT: Focus on code content, not formatting or adding comments.
+- NOTE: Classify comments as "nit", "minor", or "major". Start each comment with the appropriate label.
 
 Review the following code diff in the file "${
       file.to

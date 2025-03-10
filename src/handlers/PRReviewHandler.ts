@@ -92,7 +92,7 @@ export class PRReviewHandler {
     const comments: ReviewComment[] = [];
 
     for (const file of parsedDiff) {
-      if (this.isDeletedFile(file)) continue; // Skip deleted files
+      if (PRReviewHandler.isDeletedFile(file)) continue; // Skip deleted files
 
       for (const chunk of file.chunks) {
         const prompt = DiffUtils.createPrompt(file, chunk, prDetails);
@@ -108,7 +108,7 @@ export class PRReviewHandler {
     return comments;
   }
 
-  private isDeletedFile(file: File): boolean {
+  private static isDeletedFile(file: File): boolean {
     return file.to === PRReviewHandler.DELETED_FILE_PATH;
   }
 } 
