@@ -34,17 +34,19 @@ jobs:
         run: |
           git clone https://x-access-token:${{ secrets.PUBLIC_REPO_TOKEN }}@github.com/Deepak-png981/AI-Code-Reviewer-Release.git public-release
 
-      # 4. Update the version in the public repository.
-      - name: Update Version in Public Repository
-        run: |
-          version=$(jq -r '.version' package.json)
-          echo "Using version: $version"
-          echo "$version" > public-release/VERSION
-
-      # 5. Ensure the target dist/ folder exists in the public repo.
+      # 4. Ensure the target dist/ folder exists in the public repo.
       - name: Ensure dist/ folder exists
         run: |
           mkdir -p public-release/dist
+
+      # 5. Update the version file in the public repo's dist folder.
+      - name: Update Version in Public Repository
+        run: |
+          version=$(node -p "require('./package.json').version")
+          echo "Using version: $version"
+          echo "$version" > public-release/dist/VERSION
+          echo "VERSION file content:"
+          cat public-release/dist/VERSION
 
       # 6. Copy only the built files into the public repo's dist/ folder.
       - name: Copy Built Files to Public Repository
@@ -59,7 +61,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
           if [ -n "$(git status --porcelain)" ]; then
-            git commit -m "Release update: $(date) - Version $(cat VERSION)"
+            git commit -m "Release update: $(date) - Version $(cat dist/VERSION)"
             git push origin HEAD:main
           else
             echo "No changes to commit"
