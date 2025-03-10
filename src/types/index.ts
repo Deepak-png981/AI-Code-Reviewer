@@ -29,3 +29,9 @@ export interface OpenAIConfig {
 } 
 
 export type Prompt = string;
+
+export enum ErrorSeverity {
+  WARNING,
+  ERROR,
+  FATAL
+}
