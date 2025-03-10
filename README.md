@@ -1,8 +1,66 @@
 # AI Code Reviewer
 
-AI Code Reviewer is a GitHub Action that leverages OpenAI's GPT-4 API to provide intelligent feedback and suggestions on
-your pull requests. This powerful tool helps improve code quality and saves developers time by automating the code
-review process.
+AI-powered code review tool for GitHub pull requests.
+
+## Project Structure
+
+
+```
+src/
+├── index.ts               # Entry point
+├── types/
+│   └── index.ts           # Common interfaces and types
+├── config/
+│   └── index.ts           # Configuration and environment variables
+├── services/
+│   ├── GitHubService.ts   # GitHub API interactions
+│   └── AIService.ts       # OpenAI API interactions
+├── utils/
+│   └── diffUtils.ts       # Utilities for diff processing
+└── handlers/
+    └── PRReviewHandler.ts # Main PR review logic
+```
+
+## Components
+
+### Services
+
+- **GitHubService**: Handles all GitHub API interactions, including fetching PR details, diffs, and posting comments.
+- **AIService**: Manages interactions with the OpenAI API to generate code review comments.
+
+### Utils
+
+- **DiffUtils**: Provides utility functions for processing diffs, creating prompts for AI, and formatting comments.
+
+### Handlers
+
+- **PRReviewHandler**: Orchestrates the entire review process.
+
+## Setup and Running
+
+1. Install dependencies:
+   ```
+   npm install
+   ```
+
+2. Build the project:
+   ```
+   npm run build
+   ```
+
+3. Package the project:
+   ```
+   npm run package
+   ```
+
+## Configuration
+
+The tool uses GitHub Action inputs for configuration. The following inputs are available:
+
+- `GITHUB_TOKEN`: GitHub token for API access
+- `OPENAI_API_KEY`: OpenAI API key
+- `OPENAI_API_MODEL`: OpenAI model to use
+- `exclude`: Comma-separated list of patterns to exclude from review
 
 ## Features
 
