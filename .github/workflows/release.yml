@@ -34,11 +34,16 @@ jobs:
           token: ${{ secrets.PUBLIC_REPO_TOKEN }}
           path: public-release
 
-      # Step 4: Set the correct remote URL explicitly.
+      # Step 4: Set the correct remote URL explicitly (for both fetch and push).
       - name: Set Remote URL for Public Repository
         working-directory: public-release
         run: |
+          # Set the fetch URL
           git remote set-url origin https://x-access-token:${{ secrets.PUBLIC_REPO_TOKEN }}@github.com/Deepak-png981/AI-Code-Reviewer-Release.git
+          # Set the push URL explicitly
+          git remote set-url --push origin https://x-access-token:${{ secrets.PUBLIC_REPO_TOKEN }}@github.com/Deepak-png981/AI-Code-Reviewer-Release.git
+          # (Optional) Verify the remotes
+          git remote -v
 
       # Step 5: Copy the contents of the dist folder to the public repository.
       - name: Copy Built Files to Public Repository
@@ -60,7 +65,8 @@ jobs:
           git add .
           if [ -n "$(git status --porcelain)" ]; then
             git commit -m "Release update: $(date)"
-            git push
+            # Explicitly push to origin and the main branch
+            git push origin HEAD:main
           else
             echo "No changes to commit"
           fi
