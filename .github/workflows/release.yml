@@ -13,11 +13,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the private repository code.
+      # Step 1: Checkout the private repository code.
       - name: Checkout Private Repository
         uses: actions/checkout@v3
 
-      # Set up Node.js and install dependencies.
+      # Step 2: Set up Node.js and install dependencies.
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -29,23 +29,12 @@ jobs:
           npm run build
           npm run package
 
-      # Checkout the public repository into a subdirectory.
-      - name: Checkout Public Repository
-        uses: actions/checkout@v3
-        with:
-          repository: Deepak-png981/AI-Code-Reviewer-Release
-          token: ${{ secrets.PUBLIC_REPO_TOKEN }}
-          path: public-release
-
-      # Remove the existing remote and add the correct one (for both fetch and push).
-      - name: Reset and Set Remote URL for Public Repository
-        working-directory: public-release
+      # Step 3: Manually clone the public repository.
+      - name: Clone Public Repository
         run: |
-          git remote remove origin
-          git remote add origin https://x-access-token:${{ secrets.PUBLIC_REPO_TOKEN }}@github.com/Deepak-png981/AI-Code-Reviewer-Release.git
-          git remote -v
+          git clone https://x-access-token:${{ secrets.PUBLIC_REPO_TOKEN }}@github.com/Deepak-png981/AI-Code-Reviewer-Release.git public-release
 
-      # Copy the contents of the dist folder to the public repository.
+      # Step 4: Copy the contents of the dist folder to the public repository.
       - name: Copy Built Files to Public Repository
         run: |
           if [ ! -d public-release ]; then
@@ -53,8 +42,8 @@ jobs:
             exit 1
           fi
           rsync -av --delete dist/ public-release/
-          
-      # Commit and push the changes to the public repository.
+
+      # Step 5: Commit and push the changes to the public repository.
       - name: Commit and Push Changes
         working-directory: public-release
         run: |
