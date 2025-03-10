@@ -1,13 +1,11 @@
 import { PRReviewHandler } from "./handlers/PRReviewHandler";
 
-async function main() {
+(async () => {
   try {
     const handler = new PRReviewHandler();
     await handler.process();
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Error occurred during PR review process:", error);
     process.exit(1);
   }
-}
-
-main(); 
+})()
