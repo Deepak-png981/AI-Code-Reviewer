@@ -1,6 +1,7 @@
 import parseDiff, { Chunk, File } from "parse-diff";
 import minimatch from "minimatch";
 import { AIResponse, PRDetails, Prompt, ReviewComment } from "../types";
+import * as core from '@actions/core';
 
 export class DiffUtils {
   public static parseDiff(diff: string): File[] {
@@ -54,6 +55,8 @@ ${chunk.changes
     chunk: Chunk,
     aiResponses: AIResponse[]
   ): ReviewComment[] {
+    core.info(`Creating review comments for file: ${file.to}`);
+    core.info(`AI responses: ${JSON.stringify(aiResponses)}`);
     return aiResponses.flatMap((aiResponse) => {
       if (!file.to) {
         return [];
