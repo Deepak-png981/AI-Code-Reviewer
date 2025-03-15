@@ -16,42 +16,54 @@ export class DiffUtils {
   }
 
   public static createPrompt(file: File, chunk: Chunk, prDetails: PRDetails): Prompt {
+    // Build diff lines outside of the main template literal.
+    const diffLines = chunk.changes
+      // @ts-expect-error - ln and ln2 exist where needed
+      .map((c) => `${c.ln ? c.ln : c.ln2} ${c.content}`)
+      .join("\n");
+
     return `
-Your task is to review pull requests. Instructions: \n
-- Provide the response in following JSON format:  {"reviews": [{"lineNumber":  <line_number>, "reviewComment": "<review comment>"}]} \n
-- Do not give positive comments or compliments. \n
-- Provide comments and suggestions ONLY if there is something to improve, otherwise "reviews" should be an empty array. \n
-- Write the comment in GitHub Markdown format. \n
-- Use the given description only for the overall context and only comment the code. \n
-- IMPORTANT: NEVER suggest adding comments to the code. \n
-- IMPORTANT: Focus on code content, not formatting or adding comments. \n
-- NOTE: Classify comments as "nit", "minor", or "major". Start each comment with the appropriate label. \n
-- You can suggest changes using the suggest feature of GitHub comments but do make sure to use it when it makes sense. \n
-- For Example: better variable names, better function names, better code structure or spelling error or grammatical error or missing semicolons or commas or better log/print statements or something else. \n
-- When suggesting code changes, use GitHub's suggestion format by wrapping your suggested changes with: \n
-  \`\`\`suggestion \n
-  your suggested changes here \n
-  \`\`\` \n
+Your task is to review pull requests. Please follow these instructions carefully:
 
-Review the following code diff in the file "${file.to
-      }" and take the pull request title and description into account when writing the response. \n
-  
-Pull request title: ${prDetails.title} \n
-Pull request description: \n
+1. **Response Format**:
+   - Provide the response in the following JSON format:
+     \`\`\`json
+     {"reviews": [{"lineNumber": <line_number>, "reviewComment": "<review comment>"}]}
+     \`\`\`
+   - If there is nothing to improve, the array should be empty:
+     \`{"reviews": []}\`
 
---- \n
-${prDetails.description} \n
---- \n
+2. **Review Guidelines**:
+   - Provide **constructive, actionable** feedback only when there is something to improve.
+   - Do not include any positive comments or compliments—even if the code is well-written.
+   - Focus solely on the code's logic and functionality; avoid commenting on formatting or style.
+   - **Never** advise the addition or modification of code comments.
+   - Categorize each issue as "nit" (trivial), "minor" (needs improvement), or "major" (requires significant change). Begin each comment with the appropriate label.
 
-Git diff to review: \n
+3. **Suggestions**:
+   - When recommending a change, offer a clear and specific solution that addresses issues such as variable naming, function design, overall code structure, or minor errors (e.g., typos, missing punctuation) or anything else that can be suggested in a suggestion.
+   - Present your suggested changes using GitHub’s suggestion feature by wrapping them in the following format:
+     \`\`\`suggestion
+     // your suggested changes here
+     \`\`\`
 
-\`\`\`diff \n
-${chunk.content} \n
-${chunk.changes
-        // @ts-expect-error - ln and ln2 exists where needed
-        .map((c) => `${c.ln ? c.ln : c.ln2} ${c.content}`)
-        .join("\n")} \n
-\`\`\` \n
+
+4. **Pull Request Context**:
+   - **Title**: \`${prDetails.title}\`
+   - **Description**:
+     \`\`\`
+     ${prDetails.description}
+     \`\`\`
+
+5. **Code to Review**:
+   - **File**: \`${file.to}\`
+   - **Diff**:
+     \`\`\`diff
+     ${chunk.content}
+     ${diffLines}
+     \`\`\`
+
+Please generate your review based on these guidelines.
 `;
   }
 
@@ -71,4 +83,4 @@ ${chunk.changes
       };
     });
   }
-} 
+}
