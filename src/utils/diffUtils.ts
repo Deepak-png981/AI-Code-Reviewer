@@ -1,6 +1,7 @@
 import parseDiff, { Chunk, File } from "parse-diff";
 import minimatch from "minimatch";
 import { AIResponse, PRDetails, Prompt, ReviewComment } from "../types";
+import { Logger } from "../logger";
 
 export class DiffUtils {
   public static parseDiff(diff: string): File[] {
@@ -72,18 +73,27 @@ ${chunk.changes
     chunk: Chunk,
     aiResponses: AIResponse[]
   ): ReviewComment[] {
+    // Log the AI responses for debugging
+    const logger = new Logger();
+    logger.info(`Processing ${aiResponses.length} AI responses for file: ${file.to}`);
+    logger.info(`AI Responses: ${JSON.stringify(aiResponses, null, 2)}`);
+    
     return aiResponses.flatMap((aiResponse) => {
       if (!file.to) {
+        logger.info(`Skipping response - file.to is undefined`);
         return [];
       }
       
       const lineNumber = Number(aiResponse.lineNumber);
+      logger.info(`Processing response for line ${lineNumber} in ${file.to}`);
+      
       const isLineInDiff = chunk.changes.some(change => {
         const changeLine = change.type === 'add' ? change.ln : (change.type === 'normal' ? change.ln2 : null);
         return changeLine === lineNumber;
       });
       
       if (isLineInDiff) {
+        logger.info(`Line ${lineNumber} is in diff, creating comment`);
         let commentBody = aiResponse.reviewComment;
         if (aiResponse.suggestion) {
           commentBody += `\n\n\`\`\`suggestion\n${aiResponse.suggestion}\n\`\`\``;
@@ -96,7 +106,7 @@ ${chunk.changes
         };
       }
       
-      console.log(`Skipping comment for line ${lineNumber} in ${file.to} as it's not part of the diff`);
+      logger.info(`Skipping comment for line ${lineNumber} in ${file.to} as it's not part of the diff`);
       return [];
     });
   }

@@ -1,5 +1,3 @@
-import { Chunk, File } from "parse-diff";
-
 export interface PRDetails {
   owner: string;
   repo: string;
