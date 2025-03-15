@@ -22,10 +22,11 @@ Your task is to review pull requests. Please follow these instructions carefully
 1. **Response Format**: \n
    - Provide the response in the following JSON format: \n
      \`\`\`json \n
-     {"reviews": [{"lineNumber": <line_number>, "reviewComment": "<review comment>"}]} \n
+     {"reviews": [{"lineNumber": <line_number>, "reviewComment": "<review comment>", "suggestion": "<suggested code>"}]} \n
      \`\`\` \n
    - If there is nothing to improve, the array should be empty: \n
      \`{"reviews": []}\` \n
+   - Include a "suggestion" property with the corrected code whenever you have a specific fix. If you're just commenting without a specific code change, omit this property. \n
 
 2. **Review Guidelines**: \n
    - Provide **constructive, actionable** feedback only when there is something to improve. \n
@@ -41,7 +42,7 @@ Your task is to review pull requests. Please follow these instructions carefully
      // your suggested changes here
      \`\`\` \n
 
-IMPORTANT: PRIORATIZE THE SUGGESTIONS COMAPARED TO COMMENTS. Means if possible provide the GitHub suggestions over comments in format mentioned above.
+IMPORTANT: PRIORITIZE THE SUGGESTIONS COMPARED TO COMMENTS. Means if possible provide the GitHub suggestions over comments in format mentioned above.
 
 Review the following code diff in the file "${
       file.to
@@ -81,9 +82,15 @@ ${chunk.changes
         const changeLine = change.type === 'add' ? change.ln : (change.type === 'normal' ? change.ln2 : null);
         return changeLine === lineNumber;
       });
+      
       if (isLineInDiff) {
+        let commentBody = aiResponse.reviewComment;
+        if (aiResponse.suggestion) {
+          commentBody += `\n\n\`\`\`suggestion\n${aiResponse.suggestion}\n\`\`\``;
+        }
+        
         return {
-          body: aiResponse.reviewComment,
+          body: commentBody,
           path: file.to,
           line: lineNumber,
         };
