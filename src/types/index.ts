@@ -17,6 +17,7 @@ export interface ReviewComment {
 export interface AIResponse {
   lineNumber: string;
   reviewComment: string;
+  suggestion?: string;
 }
 
 export interface OpenAIConfig {
