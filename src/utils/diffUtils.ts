@@ -36,7 +36,7 @@ Your task is to review pull requests. Please follow these instructions carefully
 
 3. **Suggestions**:
    - When recommending a change, offer a clear and specific solution that addresses issues such as variable naming, function design, overall code structure, or minor errors (e.g., typos, missing punctuation).
-   - Present your suggested changes using GitHub’s suggestion feature by wrapping them in the following format:
+   - Present your suggested changes using GitHub's suggestion feature by wrapping them in the following format:
      \`\`\`suggestion
      // your suggested changes here
      \`\`\`
@@ -73,11 +73,22 @@ ${chunk.changes
       if (!file.to) {
         return [];
       }
-      return {
-        body: aiResponse.reviewComment,
-        path: file.to,
-        line: Number(aiResponse.lineNumber),
-      };
+      
+      const lineNumber = Number(aiResponse.lineNumber);
+      const isLineInDiff = chunk.changes.some(change => {
+        const changeLine = change.type === 'add' ? change.ln : (change.type === 'normal' ? change.ln2 : null);
+        return changeLine === lineNumber;
+      });
+      if (isLineInDiff) {
+        return {
+          body: aiResponse.reviewComment,
+          path: file.to,
+          line: lineNumber,
+        };
+      }
+      
+      console.log(`Skipping comment for line ${lineNumber} in ${file.to} as it's not part of the diff`);
+      return [];
     });
   }
 } 
