@@ -3,16 +3,11 @@ const core = require('@actions/core');
 
 (async () => {
   try {
+    core.info('Running Review Raccoon...');    
     const handler = new PRReviewHandler();
-    core.info('This is an informational messagess');
-    core.warning('This is a warning message');
-    core.debug('This is a debug message');
-    core.error('This is an error message');
-    core.setOutput('result', 'valueee');
-    
     await handler.process();
   } catch (error) {
-    console.error("Error occurred during PR review process:", error);
+    core.error('An error occurred:', error);
     core.setFailed('Action failed with error');
     process.exit(1);
   }
