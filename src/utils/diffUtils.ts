@@ -34,7 +34,7 @@ export class DiffUtils {
       }
 
       const body = aiResponse.suggestion
-        ? `${aiResponse.reviewComment}\n\n\`\`\`suggestion \n ${aiResponse.suggestion} \`\`\`` : aiResponse.reviewComment;
+        ? `${aiResponse.reviewComment}\n\n\`\`\`suggestion\n${aiResponse.suggestion} \`\`\`` : aiResponse.reviewComment;
       core.info(`Review comment: ${body}`);
       return {
         body: body,
