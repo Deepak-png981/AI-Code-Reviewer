@@ -41,6 +41,8 @@ Your task is to review pull requests. Please follow these instructions carefully
      // your suggested changes here
      \`\`\` \n
 
+IMPORTANT: PRIORATIZE THE SUGGESTIONS COMAPARED TO COMMENTS. Means if possible provide the GitHub suggestions over comments in format mentioned above.
+
 Review the following code diff in the file "${
       file.to
     }" and take the pull request title and description into account when writing the response. \n
