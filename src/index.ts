@@ -8,7 +8,7 @@ const core = require('@actions/core');
     core.warning('This is a warning message');
     core.error('This is an error message');
     core.debug('This is a debug message');
-    core.setOutput('result', 'some value');
+    core.setOutput('result', 'valueee');
     
     await handler.process();
   } catch (error) {
