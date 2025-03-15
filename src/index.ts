@@ -6,8 +6,8 @@ const core = require('@actions/core');
     const handler = new PRReviewHandler();
     core.info('This is an informational message');
     core.warning('This is a warning message');
-    core.error('This is an error message');
     core.debug('This is a debug message');
+    core.error('This is an error message');
     core.setOutput('result', 'valueee');
     
     await handler.process();
