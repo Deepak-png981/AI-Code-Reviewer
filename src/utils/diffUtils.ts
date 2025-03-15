@@ -32,8 +32,12 @@ export class DiffUtils {
       if (!file.to) {
         return [];
       }
+
+      const body = aiResponse.suggestion
+        ? `${aiResponse.reviewComment}\n\n\`\`\`suggestion ${aiResponse.suggestion} \`\`\`` : aiResponse.reviewComment;
+      core.info(`Review comment: ${body}`);
       return {
-        body: aiResponse.reviewComment,
+        body: body,
         path: file.to,
         line: Number(aiResponse.lineNumber),
       };
