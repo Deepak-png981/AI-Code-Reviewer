@@ -106,7 +106,13 @@ export class PRReviewHandler {
 
         if (aiResponses) {
           const newComments = DiffUtils.createReviewComments(file, chunk, aiResponses);
-          comments.push(...newComments);
+          const validComments = newComments.filter(comment => {
+            const chunkStart = chunk.oldStart;
+            const chunkEnd = chunkStart + chunk.oldLines;
+            return comment.line >= chunkStart && comment.line <= chunkEnd;
+          });
+          
+          comments.push(...validComments);
         }
       }
     }
