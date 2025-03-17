@@ -101,4 +101,19 @@ export class GitHubService {
       body: description,
     });
   }
+
+  public async getChangedFiles(
+    owner: string,
+    repo: string,
+    pull_number: number
+  ): Promise<any[]> {
+    const response = await this.octokit.pulls.listFiles({
+      owner,
+      repo,
+      pull_number,
+      per_page: 20
+    });
+    
+    return response.data;
+  }
 } 
