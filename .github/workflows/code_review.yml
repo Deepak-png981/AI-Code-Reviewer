@@ -33,5 +33,6 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_API_MODEL: "gpt-4-1106-preview"
           exclude: "yarn.lock,dist/**"
+          PR_DESCRIPTION: "true"
         env:
           ACTIONS_STEP_DEBUG: true

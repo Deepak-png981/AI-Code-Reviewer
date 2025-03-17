@@ -10,6 +10,8 @@ export class Config {
   public readonly OPENAI_API_MODEL: string;
   public readonly EXCLUDE_PATTERNS: string[];
 
+  public readonly UPDATE_PR_DESCRIPTION: boolean;
+
   private constructor() {
     this.errorHandler = ErrorHandler.getInstance();
 
@@ -18,6 +20,18 @@ export class Config {
     this.OPENAI_API_MODEL = this.getParamWithDefault("OPENAI_API_MODEL", "gpt-3.5-turbo",
       "No OPENAI_API_MODEL provided, using default model");
     this.EXCLUDE_PATTERNS = this.getArrayParam("exclude");
+    this.UPDATE_PR_DESCRIPTION = this.getBooleanParam("PR_DESCRIPTION", false);
+    core.info(`UPDATE_PR_DESCRIPTION: ${this.UPDATE_PR_DESCRIPTION}`);
+
+  }
+
+  private getBooleanParam(name: string, defaultValue: boolean): boolean {
+    const value = core.getInput(name);
+    core.info(`${name}: ${value}`);
+    if (!value || value.trim() === "") {
+      return defaultValue;
+    }
+    return value.toLowerCase() === "true";
   }
 
   private getRequiredParam(name: string): string {
