@@ -21,13 +21,10 @@ export class Config {
       "No OPENAI_API_MODEL provided, using default model");
     this.EXCLUDE_PATTERNS = this.getArrayParam("exclude");
     this.UPDATE_PR_DESCRIPTION = this.getBooleanParam("PR_DESCRIPTION", false);
-    core.info(`UPDATE_PR_DESCRIPTION: ${this.UPDATE_PR_DESCRIPTION}`);
-
   }
 
   private getBooleanParam(name: string, defaultValue: boolean): boolean {
     const value = core.getInput(name);
-    core.info(`${name}: ${value}`);
     if (!value || value.trim() === "") {
       return defaultValue;
     }

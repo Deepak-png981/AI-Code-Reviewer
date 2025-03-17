@@ -1,3 +1,7 @@
+import * as core from "@actions/core";
+
+
+
 import { readFileSync } from "fs";
 import { File } from "parse-diff";
 import { PRDetails, ReviewComment } from "../types";
@@ -51,6 +55,7 @@ export class PRReviewHandler {
           prDetails.pull_number,
           comments
         );
+        await this.updatePRDescription(prDetails);
       }
     } catch (error) {
       this.errorHandler.handleError("Error in PR review process", ErrorSeverity.ERROR, error as Error);
@@ -110,5 +115,21 @@ export class PRReviewHandler {
 
   private static isDeletedFile(file: File): boolean {
     return file.to === PRReviewHandler.DELETED_FILE_PATH;
+  }
+
+  private async updatePRDescription(
+    prDetails: PRDetails,
+    // comments: ReviewComment[]
+  ): Promise<void> {
+    if( !this.config.UPDATE_PR_DESCRIPTION )
+      return ;
+    const currentDescription = prDetails.description || "";
+    core.info(`currentDescription : ${currentDescription}`);
+    await this.gitHubService.updatePRDescription(
+      prDetails.owner,
+      prDetails.repo,
+      prDetails.pull_number,
+      `currentDescription : ${currentDescription} , updatedDescription : testttttt`
+    )
   }
 } 
