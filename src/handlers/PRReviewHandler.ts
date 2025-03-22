@@ -1,3 +1,7 @@
+import * as core from "@actions/core";
+
+
+
 import { readFileSync } from "fs";
 import { File } from "parse-diff";
 import { PRDetails, ReviewComment } from "../types";
@@ -34,6 +38,8 @@ export class PRReviewHandler {
         );
         return;
       }
+
+      await this.updatePRDescription(prDetails);
 
       const parsedDiff = DiffUtils.parseDiff(diff);
 
@@ -100,7 +106,13 @@ export class PRReviewHandler {
 
         if (aiResponses) {
           const newComments = DiffUtils.createReviewComments(file, chunk, aiResponses);
-          comments.push(...newComments);
+          const validComments = newComments.filter(comment => {
+            const chunkStart = chunk.oldStart;
+            const chunkEnd = chunkStart + chunk.oldLines;
+            return comment.line >= chunkStart && comment.line <= chunkEnd;
+          });
+          
+          comments.push(...validComments);
         }
       }
     }
@@ -110,5 +122,104 @@ export class PRReviewHandler {
 
   private static isDeletedFile(file: File): boolean {
     return file.to === PRReviewHandler.DELETED_FILE_PATH;
+  }
+
+  private async updatePRDescription(
+    prDetails: PRDetails
+  ): Promise<void> {
+    if (!this.config.UPDATE_PR_DESCRIPTION) {
+      return;
+    }
+
+    const currentDescription = prDetails.description || "";
+    const markerToCheckIfDescriptionIsUpdatedAlready = "<!-- PR-CHANGES-SUMMARY-START -->";
+    if (currentDescription.includes(markerToCheckIfDescriptionIsUpdatedAlready)) {
+      core.info("PR description has already been updated. Skipping update.");
+      return;
+    }
+    
+    try {
+
+      const changedFiles = await this.gitHubService.getChangedFiles(
+        prDetails.owner,
+        prDetails.repo,
+        prDetails.pull_number
+      );
+      core.info(`changedFiles : ${JSON.stringify(changedFiles)}`);
+
+      const changesSummary = this.generateChangesSummary(changedFiles);
+      const markedSummary = `${markerToCheckIfDescriptionIsUpdatedAlready}\n${changesSummary}`;
+      const newDescription = currentDescription 
+        ? `${currentDescription}\n\n${markedSummary}`
+        : markedSummary;
+      
+      await this.gitHubService.updatePRDescription(
+        prDetails.owner,
+        prDetails.repo,
+        prDetails.pull_number,
+        newDescription
+      );
+      
+      core.info("Successfully updated PR description with changes summary.");
+    } catch (error) {
+      this.errorHandler.handleError(
+        "Failed to update PR description",
+        ErrorSeverity.WARNING,
+        error as Error
+      );
+    }
+  }
+
+  private generateChangesSummary(changedFiles: any[]): string {
+    let summary = `## PR Changes Summary\n\n`;
+    
+    // Count files by type
+    const fileTypes: Record<string, number> = {};
+    const filesByStatus: Record<string, number> = {
+      added: 0,
+      modified: 0,
+      removed: 0,
+      renamed: 0,
+    };
+    
+    changedFiles.forEach(file => {
+      // Count by file extension
+      const extension = file.filename.split('.').pop() || 'unknown';
+      fileTypes[extension] = (fileTypes[extension] || 0) + 1;
+      
+      // Count by status
+      filesByStatus[file.status] = (filesByStatus[file.status] || 0) + 1;
+    });
+    
+    // Add files changed section
+    summary += `### Files Changed\n\n`;
+    summary += `Total: ${changedFiles.length} files\n\n`;
+    
+    // Add status breakdown
+    summary += `**Changes by status:**\n`;
+    for (const [status, count] of Object.entries(filesByStatus)) {
+      if (count > 0) {
+        summary += `- ${status}: ${count} files\n`;
+      }
+    }
+    summary += `\n`;
+    
+    // Add file type breakdown
+    summary += `**Changes by file type:**\n`;
+    for (const [type, count] of Object.entries(fileTypes)) {
+      summary += `- .${type}: ${count} files\n`;
+    }
+    summary += `\n`;
+    
+    // Add list of changed files
+    summary += `### Changed Files List\n\n`;
+    changedFiles.forEach(file => {
+      const changes = file.additions + file.deletions;
+      summary += `- ${file.filename} (${file.status}, +${file.additions}/-${file.deletions}, ${changes} changes)\n`;
+    });
+    
+    summary += `\n*This summary was automatically generated on ${new Date().toISOString()}*\n`;
+    
+    return summary;
   }
 } 

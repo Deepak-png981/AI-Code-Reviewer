@@ -24,13 +24,13 @@ export class GitHubService {
       readFileSync(process.env.GITHUB_EVENT_PATH || "", "utf8")
     );
     const { repository, number } = eventData;
-    
+
     const prResponse = await this.octokit.pulls.get({
       owner: repository.owner.login,
       repo: repository.name,
       pull_number: number,
     });
-    
+
     return {
       owner: repository.owner.login,
       repo: repository.name,
@@ -87,5 +87,33 @@ export class GitHubService {
       comments,
       event: "COMMENT",
     });
+  }
+  public async updatePRDescription(
+    owner: string,
+    repo: string,
+    pull_number: number,
+    description: string
+  ): Promise<void> {
+    await this.octokit.pulls.update({
+      owner,
+      repo,
+      pull_number,
+      body: description,
+    });
+  }
+
+  public async getChangedFiles(
+    owner: string,
+    repo: string,
+    pull_number: number
+  ): Promise<any[]> {
+    const response = await this.octokit.pulls.listFiles({
+      owner,
+      repo,
+      pull_number,
+      per_page: 20
+    });
+    
+    return response.data;
   }
 } 
