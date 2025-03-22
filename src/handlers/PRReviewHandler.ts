@@ -132,8 +132,8 @@ export class PRReviewHandler {
     }
 
     const currentDescription = prDetails.description || "";
-
-    if (currentDescription.includes("## PR Changes Summary")) {
+    const markerToCheckIfDescriptionIsUpdatedAlready = "<!-- PR-CHANGES-SUMMARY-START -->";
+    if (currentDescription.includes(markerToCheckIfDescriptionIsUpdatedAlready)) {
       core.info("PR description has already been updated. Skipping update.");
       return;
     }
@@ -148,12 +148,11 @@ export class PRReviewHandler {
       core.info(`changedFiles : ${JSON.stringify(changedFiles)}`);
 
       const changesSummary = this.generateChangesSummary(changedFiles);
-      
+      const markedSummary = `${markerToCheckIfDescriptionIsUpdatedAlready}\n${changesSummary}}`;
       const newDescription = currentDescription 
-        ? `${currentDescription}\n\n${changesSummary}`
-        : changesSummary;
+        ? `${currentDescription}\n\n${markedSummary}`
+        : markedSummary;
       
-      // Update the PR description
       await this.gitHubService.updatePRDescription(
         prDetails.owner,
         prDetails.repo,
