@@ -148,7 +148,7 @@ export class PRReviewHandler {
       core.info(`changedFiles : ${JSON.stringify(changedFiles)}`);
 
       const changesSummary = this.generateChangesSummary(changedFiles);
-      const markedSummary = `${markerToCheckIfDescriptionIsUpdatedAlready}\n${changesSummary}}`;
+      const markedSummary = `${markerToCheckIfDescriptionIsUpdatedAlready}\n${changesSummary}`;
       const newDescription = currentDescription 
         ? `${currentDescription}\n\n${markedSummary}`
         : markedSummary;
